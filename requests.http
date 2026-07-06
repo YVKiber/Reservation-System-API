@@ -1,0 +1,25 @@
+### Register new user
+POST http://127.0.0.1:8000/api/accounts/register/
+Content-Type: application/json
+
+{
+  "username": "john",
+  "email": "john@example.com",
+  "first_name": "John",
+  "last_name": "Smith",
+  "password": "StrongPassword123!",
+  "password_confirm": "StrongPassword123!"
+}
+
+### Get JWT token
+POST http://127.0.0.1:8000/api/token/
+Content-Type: application/json
+
+{
+  "username": "john",
+  "password": "StrongPassword123!"
+}
+
+### Current user
+GET http://127.0.0.1:8000/api/accounts/me/
+Authorization: Bearer
