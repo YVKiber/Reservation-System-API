@@ -23,3 +23,42 @@ Content-Type: application/json
 ### Current user
 GET http://127.0.0.1:8000/api/accounts/me/
 Authorization: Bearer
+
+### List room types
+GET http://127.0.0.1:8000/api/room-types/
+
+### List rooms
+GET http://127.0.0.1:8000/api/rooms/
+
+### Get admin JWT token
+POST http://127.0.0.1:8000/api/token/
+Content-Type: application/json
+
+{
+  "username": "",
+  "password": ""
+}
+
+### Create room type
+POST http://127.0.0.1:8000/api/room-types/
+Content-Type: application/json
+Authorization: Bearer
+
+{
+  "name": "Conference Room",
+  "description": "Room type for meetings and team discussions."
+}
+
+### Create room
+POST http://127.0.0.1:8000/api/rooms/
+Content-Type: application/json
+Authorization: Bearer
+
+{
+  "name": "Room A",
+  "room_type": 1,
+  "location": "First floor",
+  "capacity": 8,
+  "description": "Small meeting room with a whiteboard.",
+  "is_active": true
+}
