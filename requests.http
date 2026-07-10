@@ -62,3 +62,32 @@ Authorization: Bearer
   "description": "Small meeting room with a whiteboard.",
   "is_active": true
 }
+
+### List bookings
+GET http://127.0.0.1:8000/api/bookings/
+Authorization: Bearer
+
+### Create booking
+POST http://127.0.0.1:8000/api/bookings/
+Content-Type: application/json
+Authorization: Bearer
+
+{
+  "room": 1,
+  "title": "Team meeting 2",
+  "description": "Weekly team sync.",
+  "start_time": "2026-07-11T10:00:00Z",
+  "end_time": "2026-07-11T11:00:00Z"
+}
+
+### Cancel booking
+POST http://127.0.0.1:8000/api/bookings/2/cancel/
+Authorization: Bearer
+
+### Confirm booking
+POST http://127.0.0.1:8000/api/bookings/2/confirm/
+Authorization: Bearer
+
+### Complete booking
+POST http://127.0.0.1:8000/api/bookings/1/complete/
+Authorization: Bearer
