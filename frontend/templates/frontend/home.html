@@ -3,42 +3,121 @@
 {% block title %}Home | Reservation System{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <h1>Meeting Room Reservation System</h1>
-    <p>
-        A Django-based web application for managing meeting rooms,
-        bookings, user accounts, and room availability.
-    </p>
+<section class="home-hero">
+    <div class="home-hero-content">
+        <span class="eyebrow">Meeting room management</span>
 
-    <div class="hero-actions">
-        <a href="/api/docs/" class="button">Open API Docs</a>
-        <a href="/api/rooms/" class="button button-secondary">View Rooms API</a>
+        <h1>Book meeting rooms without conflicts</h1>
+
+        <p>
+            Reservation System helps users find available rooms, create bookings,
+            and manage meeting schedules in one place.
+        </p>
+
+        <div class="home-actions">
+            <a href="{% url 'frontend:rooms-list' %}" class="button">
+                Browse rooms
+            </a>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'frontend:booking-create' %}" class="button button-secondary">
+                    Create booking
+                </a>
+            {% else %}
+                <a href="{% url 'frontend:register' %}" class="button button-secondary">
+                    Create account
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="home-hero-panel">
+        <div class="panel-card">
+            <span class="panel-label">Availability</span>
+            <strong>Check room bookings by date</strong>
+        </div>
+
+        <div class="panel-card">
+            <span class="panel-label">Bookings</span>
+            <strong>Create, cancel, confirm, complete</strong>
+        </div>
+
+        <div class="panel-card">
+            <span class="panel-label">Staff tools</span>
+            <strong>Manage rooms and booking statuses</strong>
+        </div>
     </div>
 </section>
 
-<section class="features">
-    <h2>Project features</h2>
+<section class="home-section">
+    <div class="section-heading">
+        <h2>What this system does</h2>
+        <p>
+            A practical Django application with API, authentication,
+            booking validation, and frontend pages.
+        </p>
+    </div>
 
     <div class="feature-grid">
         <div class="feature-card">
             <h3>User accounts</h3>
-            <p>Registration, profile management, and JWT authentication.</p>
+            <p>
+                Registration, login, logout, email verification, and password reset.
+            </p>
         </div>
 
         <div class="feature-card">
-            <h3>Room management</h3>
-            <p>Room types, rooms, capacity, locations, and active status.</p>
+            <h3>Room catalogue</h3>
+            <p>
+                Users can browse active meeting rooms and check room details.
+            </p>
         </div>
 
         <div class="feature-card">
-            <h3>Bookings</h3>
-            <p>Create, cancel, confirm, and complete room bookings.</p>
+            <h3>Booking validation</h3>
+            <p>
+                The system prevents overlapping bookings for the same room.
+            </p>
         </div>
 
         <div class="feature-card">
-            <h3>Availability</h3>
-            <p>Check room bookings for a selected date.</p>
+            <h3>Staff management</h3>
+            <p>
+                Staff users can manage rooms and approve or complete bookings.
+            </p>
         </div>
+    </div>
+</section>
+
+<section class="home-section split-section">
+    <div class="section-card">
+        <h2>For users</h2>
+        <p>
+            Browse rooms, choose a time range, create a booking, and cancel it
+            if plans change.
+        </p>
+
+        <a href="{% url 'frontend:rooms-list' %}" class="text-link">
+            View available rooms →
+        </a>
+    </div>
+
+    <div class="section-card">
+        <h2>For staff</h2>
+        <p>
+            Confirm pending bookings, complete finished meetings, and manage
+            rooms and room types.
+        </p>
+
+        {% if user.is_authenticated and user.is_staff %}
+            <a href="#" class="text-link">
+                Staff dashboard coming next →
+            </a>
+        {% else %}
+            <span class="muted-text">
+                Staff tools are available only for staff users.
+            </span>
+        {% endif %}
     </div>
 </section>
 {% endblock %}

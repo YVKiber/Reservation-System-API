@@ -631,3 +631,148 @@ button.button {
     background: #fef3c7;
     color: #92400e;
 }
+
+.home-hero {
+    display: grid;
+    grid-template-columns: 1.4fr 0.9fr;
+    gap: 28px;
+    align-items: stretch;
+    margin-bottom: 48px;
+}
+
+.home-hero-content {
+    background: #ffffff;
+    padding: 48px;
+    border-radius: 18px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.eyebrow {
+    display: inline-block;
+    margin-bottom: 14px;
+    color: #2563eb;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.home-hero h1 {
+    margin: 0 0 18px;
+    max-width: 760px;
+    font-size: 46px;
+    line-height: 1.1;
+    color: #111827;
+}
+
+.home-hero p {
+    max-width: 680px;
+    color: #4b5563;
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+.home-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.home-hero-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.panel-card {
+    flex: 1;
+    background: #111827;
+    color: #ffffff;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.panel-label {
+    display: block;
+    margin-bottom: 10px;
+    color: #93c5fd;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.panel-card strong {
+    display: block;
+    font-size: 21px;
+    line-height: 1.35;
+}
+
+.home-section {
+    margin-top: 44px;
+}
+
+.section-heading {
+    margin-bottom: 22px;
+}
+
+.section-heading h2 {
+    margin-bottom: 8px;
+    font-size: 30px;
+}
+
+.section-heading p {
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.split-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.text-link {
+    display: inline-block;
+    margin-top: 12px;
+    color: #2563eb;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.text-link:hover {
+    text-decoration: underline;
+}
+
+.muted-text {
+    display: inline-block;
+    margin-top: 12px;
+    color: #6b7280;
+}
+
+@media (max-width: 900px) {
+    .home-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .home-hero h1 {
+        font-size: 36px;
+    }
+
+    .split-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .home-hero-content {
+        padding: 28px;
+    }
+
+    .home-hero h1 {
+        font-size: 32px;
+    }
+
+    .home-actions {
+        flex-direction: column;
+    }
+}
