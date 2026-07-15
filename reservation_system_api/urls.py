@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.views import (SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView,)
 urlpatterns = [
     path('admin/', admin.site.urls),
-
+    path('', include('frontend.urls')),
     path('api/accounts/', include('accounts.urls')),
     path('api/', include('rooms.urls')),
     path('api/', include('bookings.urls')),

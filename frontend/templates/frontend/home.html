@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Reservation System{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Meeting Room Reservation System</h1>
+    <p>
+        A Django-based web application for managing meeting rooms,
+        bookings, user accounts, and room availability.
+    </p>
+
+    <div class="hero-actions">
+        <a href="/api/docs/" class="button">Open API Docs</a>
+        <a href="/api/rooms/" class="button button-secondary">View Rooms API</a>
+    </div>
+</section>
+
+<section class="features">
+    <h2>Project features</h2>
+
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>User accounts</h3>
+            <p>Registration, profile management, and JWT authentication.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3>Room management</h3>
+            <p>Room types, rooms, capacity, locations, and active status.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3>Bookings</h3>
+            <p>Create, cancel, confirm, and complete room bookings.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3>Availability</h3>
+            <p>Check room bookings for a selected date.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

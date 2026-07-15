@@ -1,0 +1,31 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Reservation System{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="navbar">
+            <a href="{% url 'frontend:home' %}" class="logo">
+                Reservation System
+            </a>
+
+            <div class="nav-links">
+                <a href="{% url 'frontend:home' %}">Home</a>
+                <a href="/api/docs/">API Docs</a>
+                <a href="/api/rooms/">Rooms API</a>
+                <a href="/api/bookings/">Bookings API</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>
