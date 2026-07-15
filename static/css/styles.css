@@ -328,3 +328,127 @@ body {
         align-items: flex-start;
     }
 }
+
+.messages {
+    margin-bottom: 24px;
+}
+
+.message {
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.message-success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.message-error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.message-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-field label {
+    font-weight: 700;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font: inherit;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+.form-errors,
+.errorlist {
+    color: #991b1b;
+    background: #fee2e2;
+    padding: 10px 12px;
+    border-radius: 8px;
+    list-style-position: inside;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.booking-item-large {
+    align-items: flex-start;
+}
+
+.booking-item h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.booking-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.button-danger {
+    background: #dc2626;
+    border: none;
+    cursor: pointer;
+}
+
+.button-danger:hover {
+    background: #b91c1c;
+}
+
+button.button {
+    border: none;
+    cursor: pointer;
+    font: inherit;
+}
+
+@media (max-width: 700px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .booking-actions {
+        align-items: flex-start;
+    }
+}

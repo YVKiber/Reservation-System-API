@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}My bookings | Reservation System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <h1>My bookings</h1>
+        <p>View and manage your room bookings.</p>
+    </div>
+
+    <a href="{% url 'frontend:booking-create' %}" class="button">
+        Create booking
+    </a>
+</section>
+
+<section class="section-card">
+    {% if bookings %}
+        <div class="booking-list">
+            {% for booking in bookings %}
+                <div class="booking-item booking-item-large">
+                    <div>
+                        <h3>{{ booking.title }}</h3>
+                        <p>
+                            Room: {{ booking.room.name }}
+                            · {{ booking.room.location }}
+                        </p>
+                        <p>
+                            {{ booking.start_time|date:"Y-m-d H:i" }}
+                            —
+                            {{ booking.end_time|date:"Y-m-d H:i" }}
+                        </p>
+                    </div>
+
+                    <div class="booking-actions">
+                        <span class="status-badge">
+                            {{ booking.status }}
+                        </span>
+
+                        {% if booking.status != "CANCELLED" and booking.status != "COMPLETED" %}
+                            <form
+                                method="post"
+                                action="{% url 'frontend:booking-cancel' booking.id %}"
+                            >
+                                {% csrf_token %}
+                                <button type="submit" class="button button-danger">
+                                    Cancel
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>No bookings yet</h2>
+            <p>You have not created any bookings yet.</p>
+            <a href="{% url 'frontend:booking-create' %}" class="button">
+                Create your first booking
+            </a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

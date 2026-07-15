@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Create booking | Reservation System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1>Create booking</h1>
+    <p>Select a room and time range for your meeting.</p>
+</section>
+
+<section class="section-card">
+    <form method="post" class="form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="form-errors">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-field">
+            <label for="{{ form.room.id_for_label }}">Room</label>
+            {{ form.room }}
+            {{ form.room.errors }}
+        </div>
+
+        <div class="form-field">
+            <label for="{{ form.title.id_for_label }}">Title</label>
+            {{ form.title }}
+            {{ form.title.errors }}
+        </div>
+
+        <div class="form-field">
+            <label for="{{ form.description.id_for_label }}">Description</label>
+            {{ form.description }}
+            {{ form.description.errors }}
+        </div>
+
+        <div class="form-row">
+            <div class="form-field">
+                <label for="{{ form.start_time.id_for_label }}">Start time</label>
+                {{ form.start_time }}
+                {{ form.start_time.errors }}
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.end_time.id_for_label }}">End time</label>
+                {{ form.end_time }}
+                {{ form.end_time.errors }}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="button">
+                Create booking
+            </button>
+
+            <a href="{% url 'frontend:bookings-list' %}" class="button button-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</section>
+{% endblock %}
