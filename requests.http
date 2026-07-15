@@ -35,8 +35,8 @@ POST http://127.0.0.1:8000/api/token/
 Content-Type: application/json
 
 {
-  "username": "",
-  "password": ""
+  "username": "Yevhenii",
+  "password": "P_1237895"
 }
 
 ### Create room type
@@ -91,3 +91,13 @@ Authorization: Bearer
 ### Complete booking
 POST http://127.0.0.1:8000/api/bookings/1/complete/
 Authorization: Bearer
+
+
+### Room availability without date
+GET http://127.0.0.1:8000/api/rooms/1/availability/
+
+### Room availability invalid date
+GET http://127.0.0.1:8000/api/rooms/1/availability/?date=10-07-2026
+
+### Room availability
+GET http://127.0.0.1:8000/api/rooms/1/availability/?date=2026-07-10
