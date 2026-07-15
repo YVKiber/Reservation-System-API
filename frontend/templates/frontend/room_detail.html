@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ room.name }} | Reservation System{% endblock %}
+
+{% block content %}
+<section class="room-detail">
+    <div class="room-detail-header">
+        <div>
+            <h1>{{ room.name }}</h1>
+            <p class="room-type">{{ room.room_type.name }}</p>
+        </div>
+
+        <a href="{% url 'frontend:rooms-list' %}" class="button button-secondary">
+            Back to rooms
+        </a>
+    </div>
+
+    <div class="room-info-grid">
+        <div class="info-card">
+            <span class="info-label">Location</span>
+            <strong>{{ room.location }}</strong>
+        </div>
+
+        <div class="info-card">
+            <span class="info-label">Capacity</span>
+            <strong>{{ room.capacity }}</strong>
+        </div>
+
+        <div class="info-card">
+            <span class="info-label">Status</span>
+            {% if room.is_active %}
+                <strong>Active</strong>
+            {% else %}
+                <strong>Inactive</strong>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if room.description %}
+        <div class="section-card">
+            <h2>Description</h2>
+            <p>{{ room.description }}</p>
+        </div>
+    {% endif %}
+
+    <div class="section-card">
+        <h2>Availability</h2>
+
+        <form method="get" class="date-form">
+            <label for="date">Select date</label>
+            <input
+                type="date"
+                id="date"
+                name="date"
+                value="{{ selected_date|date:'Y-m-d' }}"
+            >
+            <button type="submit" class="button">Check</button>
+        </form>
+
+        <h3>Bookings for {{ selected_date|date:"Y-m-d" }}</h3>
+
+        {% if bookings %}
+            <div class="booking-list">
+                {% for booking in bookings %}
+                    <div class="booking-item">
+                        <div>
+                            <strong>{{ booking.title }}</strong>
+                            <p>
+                                {{ booking.start_time|date:"H:i" }}
+                                —
+                                {{ booking.end_time|date:"H:i" }}
+                            </p>
+                        </div>
+
+                        <span class="status-badge">
+                            {{ booking.status }}
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-text">
+                No active bookings for this date.
+            </p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Rooms | Reservation System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1>Available rooms</h1>
+    <p>
+        Browse active meeting rooms and check their availability.
+    </p>
+</section>
+
+<section class="rooms-grid">
+    {% for room in rooms %}
+        <article class="room-card">
+            <h2>{{ room.name }}</h2>
+
+            <p class="room-type">
+                {{ room.room_type.name }}
+            </p>
+
+            <div class="room-meta">
+                <span>Location: {{ room.location }}</span>
+                <span>Capacity: {{ room.capacity }}</span>
+            </div>
+
+            {% if room.description %}
+                <p class="room-description">
+                    {{ room.description }}
+                </p>
+            {% endif %}
+
+            <a href="{% url 'frontend:room-detail' room.id %}" class="button">
+                View details
+            </a>
+        </article>
+    {% empty %}
+        <div class="empty-state">
+            <h2>No rooms available</h2>
+            <p>There are no active rooms at the moment.</p>
+        </div>
+    {% endfor %}
+</section>
+{% endblock %}
