@@ -1,7 +1,11 @@
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
-
+from django.core import mail
+from django.test import override_settings
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from django.contrib.auth.tokens import default_token_generator
 
 User = get_user_model()
 
@@ -113,3 +117,212 @@ class AccountsAPITests(APITestCase):
         self.assertIn("email", response.data)
         self.user.refresh_from_db()
         self.assertEqual(self.user.email, "existing@example.com")
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        FRONTEND_BASE_URL="http://frontend.test",
+    )
+    def test_password_reset_request_sends_email_for_existing_user(self):
+        response = self.client.post(
+            "/api/accounts/password-reset/",
+            {
+                "email": "existing@example.com",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("Password reset request", mail.outbox[0].subject)
+        self.assertIn("http://frontend.test/password-reset-confirm", mail.outbox[0].body)
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        FRONTEND_BASE_URL="http://frontend.test",
+    )
+    def test_password_reset_request_with_unknown_email_returns_ok(self):
+        response = self.client.post(
+            "/api/accounts/password-reset/",
+            {
+                "email": "unknown@example.com",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertIn("detail", response.data)
+
+    def test_password_reset_confirm_changes_password(self):
+        uid = urlsafe_base64_encode(
+            force_bytes(self.user.pk)
+        )
+
+        token = default_token_generator.make_token(
+            self.user
+        )
+
+        response = self.client.post(
+            "/api/accounts/password-reset-confirm/",
+            {
+                "uid": uid,
+                "token": token,
+                "new_password": "NewStrongPassword123!",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.user.refresh_from_db()
+        self.assertTrue(
+            self.user.check_password("NewStrongPassword123!")
+        )
+
+    def test_password_reset_confirm_with_invalid_token_fails(self):
+        uid = urlsafe_base64_encode(
+            force_bytes(self.user.pk)
+        )
+
+        response = self.client.post(
+            "/api/accounts/password-reset-confirm/",
+            {
+                "uid": uid,
+                "token": "invalid-token",
+                "new_password": "NewStrongPassword123!",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.user.refresh_from_db()
+        self.assertTrue(
+            self.user.check_password("StrongPassword123!")
+        )
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        FRONTEND_BASE_URL="http://frontend.test",
+    )
+    def test_user_registration_sends_verification_email(self):
+        response = self.client.post(
+            "/api/accounts/register/",
+            {
+                "username": "john",
+                "email": "john@example.com",
+                "first_name": "John",
+                "last_name": "Smith",
+                "password": "StrongPassword123!",
+                "password_confirm": "StrongPassword123!",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        user = User.objects.get(
+            username="john"
+        )
+
+        self.assertFalse(user.is_active)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("Verify your email address", mail.outbox[0].subject)
+        self.assertIn("http://frontend.test/verify-email", mail.outbox[0].body)
+
+    def test_user_can_verify_email(self):
+        inactive_user = User.objects.create_user(
+            username="inactiveuser",
+            email="inactiveuser@example.com",
+            password="StrongPassword123!",
+            is_active=False,
+        )
+
+        uid = urlsafe_base64_encode(
+            force_bytes(str(inactive_user.pk))
+        )
+
+        token = default_token_generator.make_token(
+            inactive_user
+        )
+
+        response = self.client.post(
+            "/api/accounts/verify-email/",
+            {
+                "uid": uid,
+                "token": token,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        inactive_user.refresh_from_db()
+        self.assertTrue(inactive_user.is_active)
+
+    def test_email_verification_with_invalid_token_fails(self):
+        inactive_user = User.objects.create_user(
+            username="inactiveuser",
+            email="inactiveuser@example.com",
+            password="StrongPassword123!",
+            is_active=False,
+        )
+
+        uid = urlsafe_base64_encode(
+            force_bytes(str(inactive_user.pk))
+        )
+
+        response = self.client.post(
+            "/api/accounts/verify-email/",
+            {
+                "uid": uid,
+                "token": "invalid-token",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        inactive_user.refresh_from_db()
+        self.assertFalse(inactive_user.is_active)
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        FRONTEND_BASE_URL="http://frontend.test",
+    )
+    def test_resend_email_verification_sends_email_for_inactive_user(self):
+        inactive_user = User.objects.create_user(
+            username="inactive_user",
+            email="inactive_user@example.com",
+            password="StrongPassword123!",
+            first_name="inactive",
+            last_name="User",
+            is_active=False,
+        )
+
+        response = self.client.post(
+            "/api/accounts/resend-verification/",
+            {
+                "email": inactive_user.email,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("Verify your email address", mail.outbox[0].subject)
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        FRONTEND_BASE_URL="http://frontend.test",
+    )
+    def test_resend_email_verification_for_active_user_does_not_send_email(self):
+        response = self.client.post(
+            "/api/accounts/resend-verification/",
+            {
+                "email": self.user.email,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 0)
+
