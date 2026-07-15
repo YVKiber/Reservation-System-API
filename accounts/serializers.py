@@ -58,9 +58,10 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         user = User(**validated_data)
         user.is_active = False
-        send_verification_email(user)
         user.set_password(password)
         user.save()
+
+        send_verification_email(user)
 
         return user
 
@@ -129,7 +130,7 @@ class PasswordResetRequestSerializer(serializers.Serializer):
 
         reset_link = (
             f"{settings.FRONTEND_BASE_URL}"
-            f"/password-reset-confirm"
+            f"/password-reset-confirm/"
             f"?uid={uid}&token={token}"
         )
 
@@ -212,7 +213,7 @@ def send_verification_email(user):
 
     verification_link = (
         f"{settings.FRONTEND_BASE_URL}"
-        f"/verify-email"
+        f"/verify-email/"
         f"?uid={uid}&token={token}"
     )
 
@@ -220,7 +221,7 @@ def send_verification_email(user):
 
     message = (
         "Hello,\n\n"
-        "Thank you for registering in Django Blogging API.\n\n"
+        "Thank you for registering in Reservation System.\n\n"
         f"Verification link:\n{verification_link}\n\n"
         "For API testing, use these values:\n"
         f"uid: {uid}\n"

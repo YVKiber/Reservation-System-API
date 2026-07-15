@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Email verification | Reservation System{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <div class="auth-card auth-card-center">
+        {% if success %}
+            <div class="auth-icon success-icon">✓</div>
+        {% else %}
+            <div class="auth-icon error-icon">!</div>
+        {% endif %}
+
+        <h1>{{ title }}</h1>
+
+        <p class="auth-subtitle">
+            {{ message }}
+        </p>
+
+        {% if success %}
+            <a href="{% url 'frontend:login' %}" class="button auth-button">
+                Go to login
+            </a>
+        {% else %}
+            <a href="{% url 'frontend:resend-verification' %}" class="button auth-button">
+                Resend verification email
+            </a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

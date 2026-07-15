@@ -17,8 +17,22 @@
             <div class="nav-links">
                 <a href="{% url 'frontend:home' %}">Home</a>
                 <a href="{% url 'frontend:rooms-list' %}">Rooms</a>
-                <a href="{% url 'frontend:bookings-list' %}">My bookings</a>
-                <a href="{% url 'frontend:booking-create' %}">Create booking</a>
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'frontend:bookings-list' %}">My bookings</a>
+                    <a href="{% url 'frontend:booking-create' %}">Create booking</a>
+
+                    <form method="post" action="{% url 'frontend:logout' %}" class="logout-form">
+                        {% csrf_token %}
+                        <button type="submit" class="nav-button">
+                            Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'frontend:login' %}">Login</a>
+                    <a href="{% url 'frontend:register' %}">Register</a>
+                {% endif %}
+
                 <a href="/api/docs/">API Docs</a>
             </div>
         </nav>

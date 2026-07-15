@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Register | Reservation System{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <div class="auth-card">
+        <h1>Create account</h1>
+        <p class="auth-subtitle">
+            Create your account and verify your email before logging in.
+        </p>
+
+        <form method="post" class="form auth-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-field">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+                {{ form.username.errors }}
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+                {{ form.email.errors }}
+            </div>
+
+            {% if form.first_name %}
+                <div class="form-field">
+                    <label for="{{ form.first_name.id_for_label }}">First name</label>
+                    {{ form.first_name }}
+                    {{ form.first_name.errors }}
+                </div>
+            {% endif %}
+
+            {% if form.last_name %}
+                <div class="form-field">
+                    <label for="{{ form.last_name.id_for_label }}">Last name</label>
+                    {{ form.last_name }}
+                    {{ form.last_name.errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-field">
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                {{ form.password }}
+                {{ form.password.errors }}
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.password_confirm.id_for_label }}">
+                    Confirm password
+                </label>
+                {{ form.password_confirm }}
+                {{ form.password_confirm.errors }}
+            </div>
+
+            <button type="submit" class="button auth-button">
+                Create account
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <a href="{% url 'frontend:login' %}">Already have an account?</a>
+            <span>·</span>
+            <a href="{% url 'frontend:resend-verification' %}">
+                Resend verification email
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

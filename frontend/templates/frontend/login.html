@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Login | Reservation System{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <div class="auth-card">
+        <h1>Login</h1>
+
+        <p class="auth-subtitle">
+            Sign in to manage your room bookings.
+        </p>
+
+        <form method="post" class="form auth-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-field">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+                {{ form.username.errors }}
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                {{ form.password }}
+                {{ form.password.errors }}
+            </div>
+
+            {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
+
+            <button type="submit" class="button auth-button">
+                Login
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <a href="{% url 'frontend:register' %}">Create account</a>
+            <span>·</span>
+            <a href="{% url 'frontend:password-reset' %}">Forgot password?</a>
+        </div>
+
+        <p class="auth-note">
+            Account not verified?
+            <a href="{% url 'frontend:resend-verification' %}">
+                Resend verification email
+            </a>
+        </p>
+    </div>
+</section>
+{% endblock %}

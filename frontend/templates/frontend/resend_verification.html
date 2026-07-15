@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Resend verification | Reservation System{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <div class="auth-card">
+        <h1>Resend verification email</h1>
+
+        <p class="auth-subtitle">
+            Enter your email address. If an unverified account exists,
+            we will send a new verification link.
+        </p>
+
+        <form method="post" class="form auth-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-field">
+                <label for="{{ form.email.id_for_label }}">Email address</label>
+                {{ form.email }}
+                {{ form.email.errors }}
+            </div>
+
+            <button type="submit" class="button auth-button">
+                Send verification email
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <a href="{% url 'frontend:login' %}">Back to login</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
