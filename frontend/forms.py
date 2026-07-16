@@ -306,6 +306,7 @@ class RoomCreateForm(forms.ModelForm):
             "room_type",
             "location",
             "capacity",
+            "image",
             "description",
             "is_available",
         ]
@@ -336,6 +337,11 @@ class RoomCreateForm(forms.ModelForm):
                     "rows": 4,
                 }
             ),
+            "image": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-input",
+                }
+            ),
         }
 
     def clean_capacity(self):
@@ -347,3 +353,17 @@ class RoomCreateForm(forms.ModelForm):
             )
 
         return capacity
+
+class RoomImageUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Room
+        fields = [
+            "image",
+        ]
+        widgets = {
+            "image": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-input",
+                }
+            ),
+        }

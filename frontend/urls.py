@@ -2,7 +2,7 @@ from django.urls import path
 
 from . import views
 from .views import BookingCreateView, BookingsListView, BookingStatusUpdateView, RoomTypeCreateView, RoomCreateView, \
-    RoomAvailabilityUpdateView
+    RoomAvailabilityUpdateView, RoomImageUpdateView, RoomImageDeleteView
 
 app_name = 'frontend'
 
@@ -22,6 +22,8 @@ urlpatterns = [
     path('rooms/', views.RoomsListView.as_view(), name='rooms-list'),
     path('room-types/create/', RoomTypeCreateView.as_view(), name='room-type-create'),
     path('rooms/create/', RoomCreateView.as_view(), name='room-create'),
+    path('rooms/<int:pk>/image/', RoomImageUpdateView.as_view(), name='room-image-update'),
+    path('rooms/<int:pk>/image/delete/', RoomImageDeleteView.as_view(), name='room-image-delete'),
     path('rooms/<int:pk>/', views.RoomDetailView.as_view(), name='room-detail'),
     path('bookings/', BookingsListView.as_view(), name='bookings-list'),
     path('bookings/create/', BookingCreateView.as_view(), name='booking-create'),

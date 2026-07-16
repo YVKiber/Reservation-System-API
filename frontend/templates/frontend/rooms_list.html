@@ -13,8 +13,20 @@
 <section class="rooms-grid">
     {% for room in rooms %}
         <article class="room-card">
+            <div class="room-image-wrapper">
+                {% if room.image %}
+                    <img
+                        src="{{ room.image.url }}"
+                        alt="{{ room.name }}"
+                        class="room-image"
+                    >
+                {% else %}
+                    <div class="room-image-placeholder">
+                        No image
+                    </div>
+                {% endif %}
+            </div>
             <h2>{{ room.name }}</h2>
-
             <p class="room-type">
                 {{ room.room_type.name }}
             </p>

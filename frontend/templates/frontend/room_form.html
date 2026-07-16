@@ -9,7 +9,7 @@
 </section>
 
 <section class="section-card">
-    <form method="post" class="form">
+    <form method="post" enctype="multipart/form-data" class="form">
         {% csrf_token %}
 
         {% if form.non_field_errors %}
@@ -48,10 +48,24 @@
             {{ form.description.errors }}
         </div>
 
+        <div class="form-field">
+            <label for="{{ form.image.id_for_label }}">Room image</label>
+            {{ form.image }}
+
+            <p class="form-help-text">
+                Recommended image: JPG, JPEG, PNG or WebP.
+                Best size: 1200×800 px or 1600×1000 px.
+                Use a horizontal photo, preferably 3:2 or 16:9 ratio.
+                Recommended file size: up to 1–2 MB.
+            </p>
+
+            {{ form.image.errors }}
+        </div>
+
         <div class="form-checkbox">
             {{ form.is_available  }}
-            <label for="{{ form.is_available .id_for_label }}">Active room</label>
-            {{ form.is_available .errors }}
+            <label for="{{ form.is_available.id_for_label }}">Active room</label>
+            {{ form.is_available.errors }}
         </div>
 
         <div class="form-actions">

@@ -16,7 +16,7 @@ from django.utils.encoding import force_str
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.http import urlsafe_base64_decode
 from .forms import BookingCreateForm, RegisterFrontendForm, PasswordResetConfirmFrontendForm, \
-    PasswordResetRequestFrontendForm, ResendVerificationForm, RoomTypeCreateForm, RoomCreateForm
+    PasswordResetRequestFrontendForm, ResendVerificationForm, RoomTypeCreateForm, RoomCreateForm, RoomImageUpdateForm
 
 User = get_user_model()
 
@@ -556,3 +556,74 @@ class RoomAvailabilityUpdateView(StaffRequiredMixin, View):
             )
 
         return redirect("frontend:rooms-list")
+
+class RoomImageUpdateView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        room = Room.objects.filter(pk=pk).first()
+
+        if not room:
+            messages.error(
+                request,
+                "Room was not found.",
+            )
+            return redirect("frontend:rooms-list")
+
+        form = RoomImageUpdateForm(
+            request.POST,
+            request.FILES,
+            instance=room,
+        )
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(
+                request,
+                "Room image was updated successfully.",
+            )
+
+            return redirect(
+                "frontend:room-detail",
+                pk=room.pk,
+            )
+
+        messages.error(
+            request,
+            "Room image could not be updated.",
+        )
+
+        return redirect(
+            "frontend:room-detail",
+            pk=room.pk,
+        )
+
+class RoomImageDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        room = Room.objects.filter(pk=pk).first()
+
+        if not room:
+            messages.error(
+                request,
+                "Room was not found.",
+            )
+            return redirect("frontend:rooms-list")
+
+        if room.image:
+            room.image.delete(save=False)
+            room.image = None
+            room.save(update_fields=["image", "updated_at"])
+
+            messages.success(
+                request,
+                "Room image was removed successfully.",
+            )
+        else:
+            messages.warning(
+                request,
+                "This room does not have an image.",
+            )
+
+        return redirect(
+            "frontend:room-detail",
+            pk=room.pk,
+        )

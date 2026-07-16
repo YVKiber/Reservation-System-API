@@ -22,6 +22,11 @@ class Room(models.Model):
     location = models.CharField(max_length=100)
     capacity = models.PositiveIntegerField()
     description = models.TextField(blank=True)
+    image = models.ImageField(
+        upload_to='rooms/',
+        blank=True,
+        null=True,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_available = models.BooleanField(default=True)

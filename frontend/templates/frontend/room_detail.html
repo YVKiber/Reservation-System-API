@@ -35,6 +35,73 @@
         </div>
     </div>
 
+    <div class="room-detail-image-wrapper">
+        {% if room.image %}
+            <img
+                src="{{ room.image.url }}"
+                alt="{{ room.name }}"
+                class="room-detail-image"
+            >
+        {% else %}
+            <div class="room-detail-placeholder">
+                No room image uploaded
+            </div>
+        {% endif %}
+    </div>
+    {% if user.is_authenticated and user.is_staff %}
+        <section class="section-card room-image-management">
+            <h2>Manage room image</h2>
+            <p class="empty-text">
+                Upload a new image for this room or remove the current one.
+            </p>
+
+            <form
+                method="post"
+                action="{% url 'frontend:room-image-update' room.id %}"
+                enctype="multipart/form-data"
+                class="form"
+            >
+                {% csrf_token %}
+
+                <div class="form-field">
+                    <label for="id_image">Room image</label>
+                    <input
+                        type="file"
+                        name="image"
+                        id="id_image"
+                        class="form-input"
+                        accept="image/*"
+                    >
+                     <p class="form-help-text">
+                        Recommended image: JPG, JPEG, PNG or WebP.
+                        Best size: 1200×800 px or 1600×1000 px.
+                        Use a horizontal photo, preferably 3:2 or 16:9 ratio.
+                        Recommended file size: up to 1–2 MB.
+                    </p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="button">
+                        Update image
+                    </button>
+                </div>
+            </form>
+
+            {% if room.image %}
+                <form
+                    method="post"
+                    action="{% url 'frontend:room-image-delete' room.id %}"
+                    class="room-delete-image-form"
+                >
+                    {% csrf_token %}
+
+                    <button type="submit" class="button button-danger">
+                        Remove image
+                    </button>
+                </form>
+            {% endif %}
+        </section>
+    {% endif %}
     <div class="room-info-grid">
         <div class="info-card">
             <span class="info-label">Location</span>
