@@ -19,8 +19,20 @@
                 <a href="{% url 'frontend:rooms-list' %}">Rooms</a>
 
                 {% if user.is_authenticated %}
-                    <a href="{% url 'frontend:bookings-list' %}">My bookings</a>
+                    <a href="{% url 'frontend:bookings-list' %}">
+                        {% if user.is_staff %}
+                            Bookings list
+                        {% else %}
+                            My bookings
+                        {% endif %}
+                    </a>
+
                     <a href="{% url 'frontend:booking-create' %}">Create booking</a>
+
+                    {% if user.is_staff %}
+                        <a href="{% url 'frontend:room-type-create' %}">Create room type</a>
+                        <a href="{% url 'frontend:room-create' %}">Create room</a>
+                    {% endif %}
 
                     <form method="post" action="{% url 'frontend:logout' %}" class="logout-form">
                         {% csrf_token %}

@@ -10,9 +10,29 @@
             <p class="room-type">{{ room.room_type.name }}</p>
         </div>
 
-        <a href="{% url 'frontend:rooms-list' %}" class="button button-secondary">
-            Back to rooms
-        </a>
+        <div class="room-header-actions">
+            {% if user.is_authenticated and user.is_staff %}
+                <form
+                    method="post"
+                    action="{% url 'frontend:room-availability-update' room.id %}"
+                >
+                    {% csrf_token %}
+
+                    {% if room.is_available %}
+                        <button type="submit" class="button button-danger">
+                            Make unavailable
+                        </button>
+                    {% else %}
+                        <button type="submit" class="button button-secondary">
+                            Make available
+                        </button>
+                    {% endif %}
+                </form>
+            {% endif %}
+            <a href="{% url 'frontend:rooms-list' %}" class="button button-secondary">
+                Back to rooms
+            </a>
+        </div>
     </div>
 
     <div class="room-info-grid">
@@ -28,10 +48,10 @@
 
         <div class="info-card">
             <span class="info-label">Status</span>
-            {% if room.is_active %}
-                <strong>Active</strong>
+            {% if room.is_available %}
+                <strong>Available</strong>
             {% else %}
-                <strong>Inactive</strong>
+                <strong>Unavailable</strong>
             {% endif %}
         </div>
     </div>

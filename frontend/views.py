@@ -2,10 +2,11 @@ from datetime import datetime, time
 
 from django.utils import timezone
 from django.contrib.auth import get_user_model, login, logout
+
 from accounts.serializers import PasswordResetConfirmSerializer, PasswordResetRequestSerializer
 from django.contrib.auth.tokens import default_token_generator
 from bookings.models import Booking
-from rooms.models import Room
+from rooms.models import Room, RoomType
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
@@ -15,7 +16,7 @@ from django.utils.encoding import force_str
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.http import urlsafe_base64_decode
 from .forms import BookingCreateForm, RegisterFrontendForm, PasswordResetConfirmFrontendForm, \
-    PasswordResetRequestFrontendForm, ResendVerificationForm
+    PasswordResetRequestFrontendForm, ResendVerificationForm, RoomTypeCreateForm, RoomCreateForm
 
 User = get_user_model()
 
@@ -29,10 +30,16 @@ class RoomsListView(ListView):
     context_object_name = "rooms"
 
     def get_queryset(self):
-        return Room.objects.select_related("room_type").filter(
-            is_available=True
+        queryset = Room.objects.select_related(
+            "room_type"
         ).order_by("name")
 
+        if self.request.user.is_authenticated and self.request.user.is_staff:
+            return queryset
+
+        return queryset.filter(
+            is_available=True
+        )
 
 class RoomDetailView(DetailView):
     model = Room
@@ -83,19 +90,24 @@ class RoomDetailView(DetailView):
 
         return context
 
-class MyBookingsListView(LoginRequiredMixin, ListView):
+class BookingsListView(LoginRequiredMixin, ListView):
     model = Booking
     template_name = 'frontend/bookings_list.html'
     context_object_name = 'bookings'
 
     def get_queryset(self):
-        return Booking.objects.select_related(
+        queryset = Booking.objects.select_related(
             'room',
             'room__room_type',
             'user',
-        ).filter(
+        ).order_by('-start_time')
+
+        if self.request.user.is_staff:
+            return queryset
+
+        return queryset.filter(
             user=self.request.user,
-        ).order_by('-start_time')\
+        )
 
 class BookingCreateView(LoginRequiredMixin, CreateView):
     model = Booking
@@ -134,50 +146,132 @@ class BookingCreateView(LoginRequiredMixin, CreateView):
         return redirect(self.success_url)
 
 
-class BookingCancelView(LoginRequiredMixin, View):
+class BookingStatusUpdateView(LoginRequiredMixin, View):
+    allowed_staff_statuses = [
+        Booking.Status.PENDING,
+        Booking.Status.CONFIRMED,
+        Booking.Status.CANCELLED,
+        Booking.Status.COMPLETED,
+    ]
+
     def post(self, request, pk):
         booking = Booking.objects.filter(
             pk=pk,
-            user=request.user,
+        ).select_related(
+            "user",
+            "room",
         ).first()
 
         if not booking:
             messages.error(
                 request,
-                'Booking was not found or you do not have permission to cancel it.',
+                "Booking was not found.",
             )
-            return redirect('frontend:bookings-list')
+            return redirect("frontend:bookings-list")
+
+        new_status = request.POST.get("status")
+
+        if request.user.is_staff:
+            return self.handle_staff_status_update(
+                request=request,
+                booking=booking,
+                new_status=new_status,
+            )
+
+        return self.handle_regular_user_status_update(
+            request=request,
+            booking=booking,
+            new_status=new_status,
+        )
+
+    def handle_regular_user_status_update(self, request, booking, new_status):
+        if booking.user != request.user:
+            messages.error(
+                request,
+                "You do not have permission to update this booking.",
+            )
+            return redirect("frontend:bookings-list")
+
+        if new_status != Booking.Status.CANCELLED:
+            messages.error(
+                request,
+                "You can only cancel your own booking.",
+            )
+            return redirect("frontend:bookings-list")
 
         if booking.status == Booking.Status.CANCELLED:
             messages.warning(
                 request,
-                'This booking is already cancelled.',
+                "This booking is already cancelled.",
             )
-            return redirect('frontend:bookings-list')
+            return redirect("frontend:bookings-list")
 
         if booking.status == Booking.Status.COMPLETED:
             messages.error(
                 request,
-                'Completed booking cannot be cancelled.',
+                "Completed booking cannot be cancelled.",
             )
-            return redirect('frontend:bookings-list')
+            return redirect("frontend:bookings-list")
 
         booking.status = Booking.Status.CANCELLED
         booking.cancelled_at = timezone.now()
         booking.save(
             update_fields=[
-                'status',
-                'cancelled_at',
-                'updated_at',
+                "status",
+                "cancelled_at",
+                "updated_at",
             ]
         )
 
         messages.success(
             request,
-            'Booking was cancelled successfully.',
+            "Booking was cancelled successfully.",
         )
 
-        return redirect('frontend:bookings-list')
+        return redirect("frontend:bookings-list")
+
+    def handle_staff_status_update(self, request, booking, new_status):
+        if new_status not in self.allowed_staff_statuses:
+            messages.error(
+                request,
+                "Invalid booking status.",
+            )
+            return redirect("frontend:bookings-list")
+
+        if booking.status == new_status:
+            messages.warning(
+                request,
+                "Booking already has this status.",
+            )
+            return redirect("frontend:bookings-list")
+
+        booking.status = new_status
+
+        if new_status == Booking.Status.CANCELLED:
+            booking.cancelled_at = timezone.now()
+        else:
+            booking.cancelled_at = None
+
+        if new_status == Booking.Status.COMPLETED:
+            booking.completed_at = timezone.now()
+        else:
+            booking.completed_at = None
+
+        booking.save(
+            update_fields=[
+                "status",
+                "cancelled_at",
+                "completed_at",
+                "updated_at",
+            ]
+        )
+
+        messages.success(
+            request,
+            "Booking status was updated successfully.",
+        )
+
+        return redirect("frontend:bookings-list")
 
 class FrontendLoginView(FormView):
     template_name = "frontend/login.html"
@@ -398,3 +492,67 @@ class PasswordResetConfirmFrontendView(FormView):
         )
 
         return super().form_valid(form)
+
+class StaffRequiredMixin(LoginRequiredMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            messages.error(
+                request,
+                "You do not have permission to access this page.",
+            )
+            return redirect("frontend:home")
+
+        return super().dispatch(request, *args, **kwargs)
+
+class RoomTypeCreateView(StaffRequiredMixin, CreateView):
+    model = RoomType
+    form_class = RoomTypeCreateForm
+    template_name = "frontend/room_type_form.html"
+    success_url = reverse_lazy("frontend:rooms-list")
+
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "Room type was created successfully.",
+        )
+        return super().form_valid(form)
+
+class RoomCreateView(StaffRequiredMixin, CreateView):
+    model = Room
+    form_class = RoomCreateForm
+    template_name = "frontend/room_form.html"
+    success_url = reverse_lazy("frontend:rooms-list")
+
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "Room was created successfully.",
+        )
+        return super().form_valid(form)
+
+class RoomAvailabilityUpdateView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        room = Room.objects.filter(pk=pk).first()
+
+        if not room:
+            messages.error(
+                request,
+                "Room was not found.",
+            )
+            return redirect("frontend:rooms-list")
+
+        room.is_available = not room.is_available
+        room.save(update_fields=["is_available"])
+
+        if room.is_available:
+            messages.success(
+                request,
+                f"{room.name} is now available.",
+            )
+        else:
+            messages.success(
+                request,
+                f"{room.name} is now unavailable.",
+            )
+
+        return redirect("frontend:rooms-list")

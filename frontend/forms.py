@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from accounts.serializers import send_verification_email
 from bookings.models import Booking
+from rooms.models import RoomType, Room
 
 User = get_user_model()
 
@@ -276,3 +277,73 @@ class PasswordResetConfirmFrontendForm(forms.Form):
                 "Passwords do not match."
             )
         return cleaned_data
+
+class RoomTypeCreateForm(forms.ModelForm):
+    class Meta:
+        model = RoomType
+        fields = ["name", "description"]
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-input",
+                    "placeholder": "Enter room type name",
+                }
+            ),
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-input",
+                    "placeholder": "Enter room type description",
+                    "rows": 4,
+                }
+            ),
+        }
+
+class RoomCreateForm(forms.ModelForm):
+    class Meta:
+        model = Room
+        fields = [
+            "name",
+            "room_type",
+            "location",
+            "capacity",
+            "description",
+            "is_available",
+        ]
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-input",
+                    "placeholder": "Enter room name",
+                }
+            ),
+            "location": forms.TextInput(
+                attrs={
+                    "class": "form-input",
+                    "placeholder": "Enter room location",
+                }
+            ),
+            "capacity": forms.NumberInput(
+                attrs={
+                    "class": "form-input",
+                    "placeholder": "Enter room capacity",
+                    "min": 1,
+                }
+            ),
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-input",
+                    "placeholder": "Enter room description",
+                    "rows": 4,
+                }
+            ),
+        }
+
+    def clean_capacity(self):
+        capacity = self.cleaned_data["capacity"]
+
+        if capacity <= 0:
+            raise forms.ValidationError(
+                "Capacity must be greater than 0."
+            )
+
+        return capacity

@@ -22,6 +22,17 @@
             <div class="room-meta">
                 <span>Location: {{ room.location }}</span>
                 <span>Capacity: {{ room.capacity }}</span>
+
+                {% if user.is_authenticated and user.is_staff %}
+                    <span>
+                        Status:
+                        {% if room.is_available %}
+                            Available
+                        {% else %}
+                            Unavailable
+                        {% endif %}
+                    </span>
+                {% endif %}
             </div>
 
             {% if room.description %}
@@ -29,10 +40,31 @@
                     {{ room.description }}
                 </p>
             {% endif %}
+        
+            <div class="room-actions">
+                <a href="{% url 'frontend:room-detail' room.id %}" class="button">
+                    View details
+                </a>
 
-            <a href="{% url 'frontend:room-detail' room.id %}" class="button">
-                View details
-            </a>
+                {% if user.is_authenticated and user.is_staff %}
+                    <form
+                        method="post"
+                        action="{% url 'frontend:room-availability-update' room.id %}"
+                    >
+                        {% csrf_token %}
+
+                        {% if room.is_available %}
+                            <button type="submit" class="button button-danger">
+                                Make unavailable
+                            </button>
+                        {% else %}
+                            <button type="submit" class="button button-secondary">
+                                Make available
+                            </button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+            </div>
         </article>
     {% empty %}
         <div class="empty-state">

@@ -1,7 +1,9 @@
 from django.urls import path
 
 from . import views
-from .views import BookingCreateView, BookingCancelView, MyBookingsListView
+from .views import BookingCreateView, BookingsListView, BookingStatusUpdateView, RoomTypeCreateView, RoomCreateView, \
+    RoomAvailabilityUpdateView
+
 app_name = 'frontend'
 
 
@@ -18,8 +20,11 @@ urlpatterns = [
     path('password-reset-confirm/', views.PasswordResetConfirmFrontendView.as_view(), name='password-reset-confir'),
 
     path('rooms/', views.RoomsListView.as_view(), name='rooms-list'),
+    path('room-types/create/', RoomTypeCreateView.as_view(), name='room-type-create'),
+    path('rooms/create/', RoomCreateView.as_view(), name='room-create'),
     path('rooms/<int:pk>/', views.RoomDetailView.as_view(), name='room-detail'),
-    path('bookings/', MyBookingsListView.as_view(), name='bookings-list'),
+    path('bookings/', BookingsListView.as_view(), name='bookings-list'),
     path('bookings/create/', BookingCreateView.as_view(), name='booking-create'),
-    path('bookings/<int:pk>/cancel/',BookingCancelView.as_view(),name='booking-cancel',),
+    path('rooms/<int:pk>/availability/',RoomAvailabilityUpdateView.as_view(),name='room-availability-update'),
+    path('bookings/<int:pk>/status/',BookingStatusUpdateView.as_view(),name='booking-status-update'),
 ]

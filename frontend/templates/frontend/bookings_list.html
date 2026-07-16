@@ -1,12 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}My bookings | Reservation System{% endblock %}
+{% block title %}
+    {% if user.is_staff %}
+        Bookings list | Reservation System
+    {% else %}
+        My bookings | Reservation System
+    {% endif %}
+{% endblock %}
 
 {% block content %}
-<section class="page-header">
+<section class="page-header page-header-row">
     <div>
-        <h1>My bookings</h1>
-        <p>View and manage your room bookings.</p>
+        {% if user.is_staff %}
+            <h1>Bookings list</h1>
+            <p>Manage all room bookings in the system.</p>
+        {% else %}
+            <h1>My bookings</h1>
+            <p>View and manage your room bookings.</p>
+        {% endif %}
     </div>
 
     <a href="{% url 'frontend:booking-create' %}" class="button">
@@ -19,12 +30,23 @@
         <div class="booking-list">
             {% for booking in bookings %}
                 <div class="booking-item booking-item-large">
-                    <div>
+                    <div class="booking-main-info">
                         <h3>{{ booking.title }}</h3>
+
                         <p>
-                            Room: {{ booking.room.name }}
+                            Room:
+                            <strong>{{ booking.room.name }}</strong>
                             · {{ booking.room.location }}
                         </p>
+
+                        {% if user.is_staff %}
+                            <p>
+                                User:
+                                <strong>{{ booking.user.username }}</strong>
+                                · {{ booking.user.email }}
+                            </p>
+                        {% endif %}
+
                         <p>
                             {{ booking.start_time|date:"Y-m-d H:i" }}
                             —
@@ -33,20 +55,51 @@
                     </div>
 
                     <div class="booking-actions">
-                        <span class="status-badge">
+                        <span class="status-badge status-{{ booking.status|lower }}">
                             {{ booking.status }}
                         </span>
 
-                        {% if booking.status != "CANCELLED" and booking.status != "COMPLETED" %}
+                        {% if user.is_staff %}
                             <form
                                 method="post"
-                                action="{% url 'frontend:booking-cancel' booking.id %}"
+                                action="{% url 'frontend:booking-status-update' booking.id %}"
+                                class="status-form"
                             >
                                 {% csrf_token %}
-                                <button type="submit" class="button button-danger">
-                                    Cancel
+
+                                <select name="status" class="status-select">
+                                    <option value="PENDING" {% if booking.status == "PENDING" %}selected{% endif %}>
+                                        Pending
+                                    </option>
+                                    <option value="CONFIRMED" {% if booking.status == "CONFIRMED" %}selected{% endif %}>
+                                        Confirmed
+                                    </option>
+                                    <option value="CANCELLED" {% if booking.status == "CANCELLED" %}selected{% endif %}>
+                                        Cancelled
+                                    </option>
+                                    <option value="COMPLETED" {% if booking.status == "COMPLETED" %}selected{% endif %}>
+                                        Completed
+                                    </option>
+                                </select>
+
+                                <button type="submit" class="button button-small">
+                                    Update status
                                 </button>
                             </form>
+                        {% else %}
+                            {% if booking.status != "CANCELLED" and booking.status != "COMPLETED" %}
+                                <form
+                                    method="post"
+                                    action="{% url 'frontend:booking-status-update' booking.id %}"
+                                >
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="CANCELLED">
+
+                                    <button type="submit" class="button button-danger">
+                                        Cancel
+                                    </button>
+                                </form>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>
@@ -54,11 +107,17 @@
         </div>
     {% else %}
         <div class="empty-state">
-            <h2>No bookings yet</h2>
-            <p>You have not created any bookings yet.</p>
-            <a href="{% url 'frontend:booking-create' %}" class="button">
-                Create your first booking
-            </a>
+            {% if user.is_staff %}
+                <h2>No bookings found</h2>
+                <p>There are no bookings in the system yet.</p>
+            {% else %}
+                <h2>No bookings yet</h2>
+                <p>You have not created any bookings yet.</p>
+
+                <a href="{% url 'frontend:booking-create' %}" class="button">
+                    Create your first booking
+                </a>
+            {% endif %}
         </div>
     {% endif %}
 </section>
